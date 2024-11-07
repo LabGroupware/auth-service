@@ -1,0 +1,98 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'org.cresplanex.account'
+version = '0.0.1'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven {
+		url "https://buf.build/gen/maven"
+	}
+}
+
+ext {
+	set('jwtVersion', '0.12.6')
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.cresplanex:core:1.0.0'
+	implementation "org.flywaydb:flyway-database-postgresql"
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation "io.jsonwebtoken:jjwt-api:${jwtVersion}"
+	implementation "io.jsonwebtoken:jjwt-impl:${jwtVersion}"
+	runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jwtVersion}"
+	implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+import java.text.SimpleDateFormat
+
+task generateMigrationFile {
+	// 引数 `migrationName`を指定できるようにする
+	def migrationName = project.hasProperty('migrationName') ? project.property('migrationName') : 'create_table'
+
+	def dir = project.hasProperty('dir') ? project.property('dir') : 'ddl'
+
+	doLast {
+		// 日付フォーマットを使用して、ファイル名に現在の日時を追加
+		def timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())
+		def fileName = "V${timestamp}__${migrationName}.sql"
+		// ディレクトリを作成して、ファイルを生成
+		def migrationDir = file("src/main/resources/db/migration/${dir}")
+		migrationDir.mkdirs()
+
+		// ファイルを作成
+		def file = new File(migrationDir, fileName)
+		file.createNewFile()
+		println "Migration file created at: ${file.path}"
+	}
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+processResources {
+	filesMatching('**/application.yaml') {
+		filter(
+				ReplaceTokens,
+				tokens: [
+						'applicationName': "${rootProject.name}".toString(),
+						'version': "${version}".toString(),
+				]
+		)
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

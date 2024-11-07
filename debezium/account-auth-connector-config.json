@@ -1,0 +1,24 @@
+{
+  "name": "account-auth-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "auth-postgres",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "auth",
+    "database.server.name": "auth-db",
+    "table.include.list": "core.message",
+    "topic.prefix": "auth",
+    "plugin.name": "pgoutput",
+    "slot.name": "debezium_auth_slot",
+    "publication.name": "debezium_auth_publication",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "true",
+    "value.converter.schemas.enable": "true",
+    "transforms": "messaging",
+    "transforms.messaging.type": "org.cresplanex.core.cdc.debezium.TransactionalMessaging"
+  }
+}

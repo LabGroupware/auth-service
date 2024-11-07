@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: ablankz/postgres:1.0.0
+    container_name: auth-postgres
+    networks:
+      - connect_network
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-store:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: "auth"
+      USE_JSON_PAYLOAD_AND_HEADERS: true
+      USE_DB_ID: false
+      USE_SAGA: true
+  redis:
+    container_name: auth-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+  register-connector:
+    image: curlimages/curl:latest
+    depends_on:
+      - postgres
+    networks:
+      - connect_network
+    volumes:
+      - ./debezium/account-auth-connector-config.json:/tmp/account-auth-connector-config.json
+    entrypoint: >
+      sh -c "
+        sleep 10 &&
+        curl -X POST -H 'Content-Type: application/json' --data @/tmp/account-auth-connector-config.json http://connect:8083/connectors
+      "
+volumes:
+  db-store:
+networks:
+  connect_network:
+    external: true

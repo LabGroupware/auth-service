@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/template :: layout(~{::title},~{::body/content()})}">
+<head>
+    <title>Login</title>
+</head>
+<body>
+<div class="bg-black text-white flex min-h-screen flex-col items-center pt-16 sm:justify-center sm:pt-0">
+    <div class="relative mt-12 w-full max-w-lg sm:mt-10">
+        <div class="relative -mb-px h-px w-full bg-gradient-to-r from-transparent via-sky-300 to-transparent"></div>
+        <div class="mx-5 border dark:border-b-white/50 dark:border-t-white/50 border-b-white/20 sm:border-t-white/20 shadow-[20px_0_20px_20px] shadow-slate-500/10 dark:shadow-white/20 rounded-lg border-white/20 border-l-white/20 border-r-white/20 sm:shadow-sm lg:rounded-xl lg:shadow-none">
+            <div class="flex flex-col p-6">
+                <h3 class="text-xl font-semibold leading-6 tracking-tighter">Register</h3>
+                <p class="mt-1.5 text-sm font-medium text-white/50">Create your account to get started.</p>
+            </div>
+
+            <div class="relative bg-red-300 border-l-4 border-red-800 text-white p-4 mx-4 mb-4 flash-message" role="alert" th:if="${!#strings.isEmpty(errorMessage)}">
+                <p class="font-bold">Error</p>
+                <p th:text="${errorMessage}">Something not ideal might be happening.</p>
+                <div class="flex absolute top-0 bottom-0 right-0 px-4 py-3 justify-center items-center close-flash-message">
+                    <span>
+                        <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-6 pt-0">
+                <form th:action="@{/register}" th:object="${registerAccountRequestDTO}" method="post">
+                    <div>
+                        <label for="name" class="text-xs font-medium text-muted-foreground group-focus-within:text-white text-gray-400 mb-2 ml-1">Name<span class="text-red-500">*</span></label>
+                        <div class="group relative rounded-lg border focus-within:border-sky-200 px-3 pb-1.5 pt-2.5 duration-200 focus-within:ring focus-within:ring-sky-300/30">
+                            <input type="text" id="name" th:field="*{name}" placeholder="Name" autocomplete="off" class="block w-full border-0 bg-transparent p-0 text-sm focus:outline-none focus:ring-0 sm:leading-7 text-foreground">
+                        </div>
+                        <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-500 text-xs mt-3"></p>
+                    </div>
+                    <div class="mt-4">
+                        <label for="email" class="text-xs font-medium text-muted-foreground group-focus-within:text-white text-gray-400 mb-2 ml-1">Email(LoginID)<span class="text-red-500">*</span></label>
+                        <div class="group relative rounded-lg border focus-within:border-sky-200 px-3 pb-1.5 pt-2.5 duration-200 focus-within:ring focus-within:ring-sky-300/30">
+                            <input type="text" id="email" th:field="*{email}" placeholder="Email" autocomplete="off" class="block w-full border-0 bg-transparent p-0 text-sm focus:outline-none focus:ring-0 sm:leading-7 text-foreground">
+                        </div>
+                        <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-red-500 text-xs mt-3"></p>
+                    </div>
+                    <div class="mt-4">
+                        <label for="password" class="text-xs font-medium text-muted-foreground group-focus-within:text-white text-gray-400 mb-2 lb-1">Password<span class="text-red-500">*</span></label>
+                        <div class="group relative rounded-lg border focus-within:border-sky-200 px-3 duration-200 focus-within:ring focus-within:ring-sky-300/30">
+                            <div class="absolute right-3 translate-y-2 password-switch cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+                                </svg>
+                            </div>
+                            <div class="flex items-center pb-1.5 pt-2.5">
+                                <input type="password" id="password" th:field="*{password}" placeholder="Password" class="block w-full border-0 bg-transparent p-0 text-sm focus:outline-none focus:ring-0 sm:leading-7 text-foreground">
+                            </div>
+                        </div>
+                        <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-red-500 text-xs mt-3"></p>
+                    </div>
+                    <div class="mt-4">
+                        <label for="passwordConfirm" class="text-xs font-medium text-muted-foreground group-focus-within:text-white text-gray-400 mb-2 lb-1">Password Confirmation<span class="text-red-500">*</span></label>
+                        <div class="group relative rounded-lg border focus-within:border-sky-200 px-3 duration-200 focus-within:ring focus-within:ring-sky-300/30">
+                            <div class="absolute right-3 translate-y-2 passwordConfirm-switch cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+                                </svg>
+                            </div>
+                            <div class="flex items-center pb-1.5 pt-2.5">
+                                <input type="password" id="passwordConfirm" th:field="*{passwordConfirm}" placeholder="Password Confirmation" class="block w-full border-0 bg-transparent p-0 text-sm focus:outline-none focus:ring-0 sm:leading-7 text-foreground">
+                            </div>
+                        </div>
+                        <p th:if="${#fields.hasErrors('passwordValid')}" th:errors="*{passwordValid}" class="text-red-500 text-xs mt-3"></p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-end gap-x-2">
+                        <a th:href="@{/login}" class="inline-flex items-center justify-center rounded-md text-sm font-medium bg-accent hover:bg-accent-dark px-4 py-2">Already have an account?</a>
+                        <button type="submit" class="font-semibold bg-white text-black hover:bg-black hover:text-white transition duration-300 px-4 py-2 rounded-md">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

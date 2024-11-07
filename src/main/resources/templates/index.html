@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/template :: layout(~{::title},~{::body/content()})}">
+<head>
+    <title>Login</title>
+</head>
+<body>
+<div class="bg-black text-white flex min-h-screen flex-col items-center pt-16 sm:justify-center sm:pt-0">
+    <div class="relative mt-12 w-full max-w-lg sm:mt-10">
+        <div class="relative -mb-px h-px w-full bg-gradient-to-r from-transparent via-sky-300 to-transparent"></div>
+                <!-- Success Message -->
+            <h1 class="text-3xl font-bold text-green-600">Login Successfully</h1>
+            <p class="text-gray-600 mt-4">Welcome! You are now logged in.</p>
+
+            <!-- Logout Button -->
+            <form th:action="@{/logout}" method="post" class="mt-6">
+                <button type="submit"
+                        class="w-full bg-red-500 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-red-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
