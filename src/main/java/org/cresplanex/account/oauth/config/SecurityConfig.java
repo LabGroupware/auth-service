@@ -12,7 +12,10 @@ import org.cresplanex.account.oauth.auth.CustomAccessDeniedHandler;
 import org.cresplanex.account.oauth.auth.CustomAuthenticationEntryPoint;
 import org.cresplanex.account.oauth.auth.UsernamePwdAuthenticationProvider;
 import org.cresplanex.account.oauth.auth.filter.JWTTokenValidatorFilter;
+import org.cresplanex.account.oauth.constants.Scope;
 import org.cresplanex.account.oauth.constants.SessionManagement;
+import org.cresplanex.account.oauth.entity.UserEntity;
+import org.cresplanex.account.oauth.repository.AccountRepository;
 import org.cresplanex.account.oauth.utils.CommonUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +41,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.*;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
@@ -61,6 +68,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -71,11 +79,16 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${app.grant-ip-cidrs}")
+    @Value("${app.grant-ip-ciders}")
     private String grantIpCidrs;
 
     @Value("${app.front.origins}")
     private String frontOrigins;
+
+    @Value("${app.require-https}")
+    private boolean requireHttps;
+
+    private final AccountRepository accountRepository;
 
     @Bean
     @Order(1)
@@ -128,7 +141,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.POST, "/register", "/login").not().authenticated()
-                        .requestMatchers("/register", "/login", "/css/**", "/js/**",  "/forgot-password", "/error/**", "/oauth2/consent").permitAll()
+                        .requestMatchers("/register", "/login", "/css/**", "/js/**",  "/forgot-password", "/error/**").permitAll()
                         .requestMatchers("/actuator/**").access(
                                 new AuthorizationManager<RequestAuthorizationContext>() {
                                     @Override
@@ -193,7 +206,13 @@ public class SecurityConfig {
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
-//                .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()) // Only HTTPS
+                .requiresChannel(
+                        rcc -> {
+                            if (requireHttps) {
+                                rcc.anyRequest().requiresSecure();
+                            }
+                        }
+                )
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/api/auth/login/**").permitAll()
                         .anyRequest().authenticated())
@@ -208,26 +227,7 @@ public class SecurityConfig {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
-//        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-//                .clientId("messaging-client")
-//                .clientSecret("{noop}secret")
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-//                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-//                .redirectUri("https://oauth.pstmn.io/v1/callback")
-////                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
-////                .redirectUri("http://127.0.0.1:8080/authorized")
-//                .scope(OidcScopes.OPENID)
-//                .scope(OidcScopes.PROFILE)
-//                .scope("message.read")
-//                .scope("message.write")
-//                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
-//                .build();
-
-        RegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
-//        registeredClientRepository.save(registeredClient);
-        return registeredClientRepository;
+        return new JdbcRegisteredClientRepository(jdbcTemplate);
     }
 
     @Bean
@@ -239,56 +239,6 @@ public class SecurityConfig {
     public OAuth2AuthorizationConsentService authorizationConsentService(JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository) {
         return new JdbcOAuth2AuthorizationConsentService(jdbcTemplate, registeredClientRepository);
     }
-
-//    @Bean
-//    public RegisteredClientRepository registeredClientRepository() {
-//        RegisteredClient clientCredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-//                .clientId("eazybankapi")
-//                .clientSecret("{noop}VxubZgAXyyTq9lGjj3qGvWNsHtE4SqTq")
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-//                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-//                .scopes(scopeConfig -> scopeConfig.addAll(List.of(OidcScopes.OPENID, "ADMIN", "USER")))
-//                .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofMinutes(10))
-//                        .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED).build()).build();
-//
-//        RegisteredClient introspectClient = RegisteredClient.withId(UUID.randomUUID().toString())
-//                .clientId("eazybankintrospect")
-//                .clientSecret("{noop}c1BK9Bg2REeydBbvUoUeKCbD2bvJzXGj")
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-//                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-//                .scopes(scopeConfig -> scopeConfig.addAll(List.of(OidcScopes.OPENID)))
-//                .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofMinutes(10))
-//                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE).build()).build();
-//
-//        RegisteredClient authCodeClient = RegisteredClient.withId(UUID.randomUUID().toString())
-//                .clientId("eazybankclient")
-//                .clientSecret("{noop}Qw3rTy6UjMnB9zXcV2pL0sKjHn5TxQqB")
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-//                .redirectUri("https://oauth.pstmn.io/v1/callback")
-//                .scope(OidcScopes.OPENID).scope(OidcScopes.EMAIL)
-//                .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofMinutes(10))
-//                        .refreshTokenTimeToLive(Duration.ofHours(8)).reuseRefreshTokens(false)
-//                        .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED).build()).build();
-//
-//        RegisteredClient pkceClient = RegisteredClient.withId(UUID.randomUUID().toString())
-//                .clientId("eazypublicclient")
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-//                .redirectUri("https://oauth.pstmn.io/v1/callback")
-//                .scope(OidcScopes.OPENID).scope(OidcScopes.EMAIL)
-//                .clientSettings(ClientSettings.builder().requireProofKey(true).build())
-//                .tokenSettings(TokenSettings.builder().accessTokenTimeToLive(Duration.ofMinutes(10))
-//                        .refreshTokenTimeToLive(Duration.ofHours(8)).reuseRefreshTokens(false)
-//                        .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED).build()).build();
-//
-//
-//        return new InMemoryRegisteredClientRepository(clientCredClient, introspectClient, authCodeClient, pkceClient);
-//    }
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
@@ -328,16 +278,57 @@ public class SecurityConfig {
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
         return (context) -> {
+            UserEntity userEntity = accountRepository.findUserByLoginId(context.getPrincipal().getName()).orElseThrow();
+
+            context.getClaims().claims((claims) -> {
+                claims.replace(JwtClaimNames.SUB, userEntity.getUserId());
+            });
+
+            if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
+                OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder()
+                        .subject(userEntity.getUserId());
+                OAuth2Authorization authorization = context.getAuthorization();
+                if (authorization != null) {
+                    Set<String> scopes = authorization.getAuthorizedScopes();
+                    if (scopes.contains(Scope.PROFILE)) {
+                        userInfoBuilder
+                                .name(userEntity.getName())
+                                .birthdate(userEntity.getBirthdate() == null ? null :userEntity.getBirthdate().format(DateTimeFormatter.ISO_DATE))
+                                .givenName(userEntity.getGivenName())
+                                .familyName(userEntity.getFamilyName())
+                                .middleName(userEntity.getMiddleName())
+                                .nickname(userEntity.getNickname())
+                                .preferredUsername(userEntity.getPreferredUsername())
+                                .profile(userEntity.getProfile())
+                                .picture(userEntity.getPicture())
+                                .website(userEntity.getWebsite())
+                                .gender(userEntity.getGender())
+                                .locale(userEntity.getLocale())
+                                .zoneinfo(userEntity.getZoneinfo())
+                                .updatedAt(userEntity.getUpdatedAt() == null ? null : userEntity.getUpdatedAt().format(DateTimeFormatter.ISO_DATE_TIME));
+                    }
+                    if (scopes.contains(Scope.EMAIL)) {
+                        userInfoBuilder.email(userEntity.getEmail());
+                    }
+                    if (scopes.contains(Scope.ADDRESS)) {
+                        userInfoBuilder.address(userEntity.getAddress());
+                    }
+                    if (scopes.contains(Scope.PHONE)) {
+                        userInfoBuilder.phoneNumber(userEntity.getPhone());
+                    }
+                }
+
+                OidcUserInfo userInfo = userInfoBuilder.build();
+                context.getClaims().claims(claims ->
+                        claims.putAll(userInfo.getClaims()));
+            }
+
             if (context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
                 context.getClaims().claims((claims) -> {
                     if (context.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
-                        log.info("Client Credential Grant Type");
-                        log.info(context.getClaims().build().getClaim("scope").toString());
                         Set<String> roles = context.getClaims().build().getClaim("scope");
                         claims.put("roles", roles);
                     } else if (context.getAuthorizationGrantType().equals(AuthorizationGrantType.AUTHORIZATION_CODE)) {
-                        log.info("Authorization Code Grant Type");
-                        log.info(context.getClaims().build().getClaim("scope").toString());
                         Set<String> roles = AuthorityUtils.authorityListToSet(context.getPrincipal().getAuthorities())
                                 .stream()
                                 .map(c -> c.replaceFirst("^ROLE_", ""))

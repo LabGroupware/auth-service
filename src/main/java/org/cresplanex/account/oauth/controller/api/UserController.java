@@ -10,12 +10,11 @@ import org.cresplanex.account.oauth.entity.AccountEntity;
 import org.cresplanex.account.oauth.entity.UserEntity;
 import org.cresplanex.account.oauth.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -39,6 +38,8 @@ public class UserController {
 
         UserResponseDto userResponseDto = toResponseDTO(userEntity);
         ResponseDto<UserResponseDto> response = new ResponseDto<>();
+
+        response.setSuccess(true);
         response.setData(userResponseDto);
         response.setCode(AuthServerErrorCode.SUCCESS);
         response.setCaption("User created successfully.");
@@ -46,9 +47,43 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<ResponseDto<UserResponseDto>> getUser(
+            @PathVariable String userId
+    ) {
+        UserEntity userEntity = userService.findById(userId);
+        UserResponseDto userResponseDto = toResponseDTO(userEntity);
+        ResponseDto<UserResponseDto> response = new ResponseDto<>();
+
+        response.setSuccess(true);
+        response.setData(userResponseDto);
+        response.setCode(AuthServerErrorCode.SUCCESS);
+        response.setCaption("User found successfully.!");
+
+        return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<ResponseDto<List<UserResponseDto>>> getUserList(
+    ) {
+        List<UserEntity> userEntityList = userService.getList();
+        List<UserResponseDto> userResponseDtoList = userEntityList.stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+        ResponseDto<List<UserResponseDto>> response = new ResponseDto<>();
+
+        response.setSuccess(true);
+        response.setData(userResponseDtoList);
+        response.setCode(AuthServerErrorCode.SUCCESS);
+        response.setCaption("User list found successfully.!");
+
+        return ResponseEntity.ok(response);
+    }
+
     // エンティティ → レスポンスDTO変換
     private UserResponseDto toResponseDTO(UserEntity user) {
-        UserResponseDto dto = new UserResponseDto(
+
+        return new UserResponseDto(
                 user.getUserId(),
                 user.getName(),
                 user.getEmail(),
@@ -67,7 +102,5 @@ public class UserController {
                 user.getZoneinfo(),
                 user.getLocale()
         );
-
-        return dto;
     }
 }

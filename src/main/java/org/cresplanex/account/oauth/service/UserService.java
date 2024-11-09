@@ -8,6 +8,7 @@ import org.cresplanex.account.oauth.event.model.user.UserCreated;
 import org.cresplanex.account.oauth.event.publisher.UserDomainEventPublisher;
 import org.cresplanex.account.oauth.exception.AccountDuplicateException;
 import org.cresplanex.account.oauth.exception.UserDuplicateException;
+import org.cresplanex.account.oauth.exception.UserNotFoundException;
 import org.cresplanex.account.oauth.repository.AccountRepository;
 import org.cresplanex.account.oauth.repository.UserRepository;
 import org.cresplanex.account.oauth.entity.UserEntity;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -64,5 +67,37 @@ public class UserService {
                 EventTypes.USER_CREATED);
 
         return user;
+    }
+
+    public UserEntity findByEmail(String email)
+    throws UserNotFoundException {
+        Optional<UserEntity> userEntity = userRepository.findByEmail(email);
+
+        if (userEntity.isEmpty()) {
+            throw new UserNotFoundException(
+                UserNotFoundException.FindType.EMAIL,
+                email
+            );
+        }
+
+        return userEntity.get();
+    }
+
+    public UserEntity findById(String userId)
+        throws UserNotFoundException {
+        Optional<UserEntity> userEntity = userRepository.findById(userId);
+
+        if (userEntity.isEmpty()) {
+            throw new UserNotFoundException(
+                UserNotFoundException.FindType.USER_ID,
+                userId
+            );
+        }
+
+        return userEntity.get();
+    }
+
+    public List<UserEntity> getList() {
+        return userRepository.findAll();
     }
 }

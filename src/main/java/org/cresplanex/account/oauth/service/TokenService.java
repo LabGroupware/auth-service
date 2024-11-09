@@ -4,6 +4,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.cresplanex.account.oauth.constants.JwtSettings;
+import org.cresplanex.account.oauth.entity.UserEntity;
+import org.cresplanex.account.oauth.repository.AccountRepository;
 import org.cresplanex.account.oauth.utils.SecureOpaqueTokenGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -25,8 +27,7 @@ public class TokenService {
     @Value("${jwt.token.issuer}")
     public String JWT_TOKEN_ISSUER;
 
-    @Value("${jwt.token.subject}")
-    public String JWT_TOKEN_SUBJECT;
+    private final AccountRepository accountRepository;
 
     @Value("${jwt.token.expiration}")
     public String JWT_TOKEN_EXPIRATION;
@@ -47,10 +48,7 @@ public class TokenService {
                 issuer = JwtSettings.JWT_TOKEN_DEFAULT_ISSUER;
             }
 
-            String subject = JWT_TOKEN_SUBJECT;
-            if (subject == null) {
-                subject = JwtSettings.JWT_TOKEN_DEFAULT_SUBJECT;
-            }
+            UserEntity userEntity = accountRepository.findUserByLoginId(authentication.getName()).orElseThrow(() -> new RuntimeException("User not found"));
 
             String secret = env.getProperty(
                     JwtSettings.JWT_SECRET_KEY,
@@ -59,7 +57,7 @@ public class TokenService {
             SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
             return Jwts.builder()
                     .issuer(issuer)
-                    .subject(subject)
+                    .subject(userEntity.getUserId())
                     .claim("email", authentication.getName())
                     .claim("authorities", authentication.getAuthorities().stream().map(
                             GrantedAuthority::getAuthority).collect(Collectors.joining(",")))

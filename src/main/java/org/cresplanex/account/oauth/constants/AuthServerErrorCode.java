@@ -25,4 +25,5 @@ public class AuthServerErrorCode {
     public static final String NOT_READABLE_REQUEST = "1013";
     public static final String INVALID_OPAQUE_TOKEN = "1014";
     public static final String INVALID_ACCESS_TOKEN = "1015";
+    public static final String USER_NOT_FOUND = "1016";
 }

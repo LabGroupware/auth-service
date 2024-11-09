@@ -1,46 +1,46 @@
 app:
   name: @applicationName@
   version: @version@
-  grantIpCidrs: "127.0.0.1/32,0:0:0:0:0:0:0:1/128"
+  grantIpCiders: ${GRANT_IP_CIDERS:"127.0.0.1/32,0:0:0:0:0:0:0:1/128"}
+  requireHttps: ${REQUIRE_HTTPS:false}
   front:
-    origins: "http://localhost:3000"
+    origins: ${FRONT_ORIGINS:"http://localhost:3000"}
 jwt:
   token:
-    issuer: "cresplanex"
-    subject: "cresplanex"
-    expiration: "2592000000"
+    issuer: ${JWT_ISSUER:cresplanex}
+    expiration: ${JWT_EXPIRATION:2592000000}
 server:
-  port: 8090
+  port: ${AUTH_SEVER_PORT:8090}
 spring:
   application:
     name: account-oauth
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/auth
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/auth}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   flyway:
     enable: true
-    baseline-on-migrate: true # ??????????????????????????????????
+    baseline-on-migrate: true #
     baseline-version: 0
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: null
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:null}
   session:
     store-type: redis # Spring Sessionの保存先をRedisに設定
   session-timeout: 30m # セッションの有効期間を設定 (オプション)
 core:
-  kafka: # kafka?????
+  kafka: # kafka
     bootstrap:
-      servers: "localhost:9094" # kafka????????
+      servers: ${KAFKA_SERVER:"localhost:9094"} # kafka
     connection:
       validation:
-        timeout: 1000 # ?????????????(Default: 1000, ?????)
+        timeout: 1000 # (Default: 1000, )
     consumer:
       properties:
-        {} # Kafka??????????????. ????????????, ?????????????????????.
+        {}
         # "bootstrap.servers", bootstrapServers)
         # "group.id", subscriberId)
         # "enable.auto.commit", "false")
@@ -48,18 +48,18 @@ core:
         # "value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
       # "auto.offset.reset", "earliest")
       # back-pressure:
-      #   low: 0 # ?????(???)????, ???????consumer?, ????????????????.(default: 0)
-      #   high: 100 # ?????????, ???????consumer?, ???????????, ????????????????????????????.(default: maxInteger)
-      poll-timeout: 100 # Kafka??????????????????????, default: 100ms??, ?????.
+      #   low: 0 # (???), ??consumer?, ?.(default: 0)
+      #   high: 100 # , ??consumer?, ?, ???.(default: maxInteger)
+      poll-timeout: 100 # Kafka??, default: 100ms??, .
   # outbox:
-  #   id: 1 # database id generator??????????
+  #   id: 1 # database id generator
   database:
-    schema: core # ???????????????
+    schema: ${DB_CORE_SCHEMA:core} #
 #     current:
 #         time:
 #             in:
 #                 milliseconds:
-#                     sql: #{null} # DefaultCoreSqlDialect???????????.
+#                     sql: #{null} # DefaultCoreSqlDialect?.
 #     outbox:
 #         partitioning:
 #             outbox:

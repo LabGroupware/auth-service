@@ -8,7 +8,6 @@ public class JwtSettings {
     public static final String JWT_HEADER = "Authorization";
 
     public static final String JWT_TOKEN_DEFAULT_ISSUER = "issuer";
-    public static final String JWT_TOKEN_DEFAULT_SUBJECT = "subject";
     public static final long JWT_TOKEN_DEFAULT_EXPIRATION = 30000000;
 
     public static final long JWT_OPAQUE_TOKEN_EXCHANGE_EXPIRATION = 300;

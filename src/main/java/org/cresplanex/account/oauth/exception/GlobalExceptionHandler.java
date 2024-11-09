@@ -425,6 +425,34 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }
 
+    // User Not Found Exception
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFoundException(
+            UserNotFoundException exception, HttpServletRequest request, HttpServletResponse response) {
+        if (isHtmlRequest(request)) {
+            Map<String, Object> variables = new HashMap<>();
+            String htmlContent = htmlRenderingService.renderHtml(request, response, "error/404", variables);
+            return new ResponseEntity<>(htmlContent, HttpStatus.NOT_FOUND);
+        }
+
+        Map<String, String> errorAttributes = new HashMap<>();
+        errorAttributes.put("findType", exception.getFindType().name());
+        errorAttributes.put("findValue", exception.getFindValue().toString());
+
+        ErrorAttributeDto errorAttributeDTO = new ErrorAttributeDto(
+                request.getRequestURI(),
+                errorAttributes
+        );
+
+        ErrorResponseDto errorResponseDTO = ErrorResponseDto.create(
+                AuthServerErrorCode.USER_NOT_FOUND,
+                exception.getErrorCaption(),
+                errorAttributeDTO
+        );
+
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.NOT_FOUND);
+    }
+
     // Invalid Opaque Token
     @ExceptionHandler(InvalidOpaqueTokenException.class)
     public ResponseEntity<Object> handleInvalidOpaqueTokenException(

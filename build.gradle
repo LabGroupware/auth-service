@@ -29,6 +29,7 @@ repositories {
 
 ext {
 	set('jwtVersion', '0.12.6')
+	set('logstashEncoder', "8.0")
 }
 
 dependencies {
@@ -37,6 +38,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+	implementation "net.logstash.logback:logstash-logback-encoder:${logstashEncoder}"
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.cresplanex:core:1.0.0'
 	implementation "org.flywaydb:flyway-database-postgresql"
@@ -60,7 +62,6 @@ dependencies {
 import java.text.SimpleDateFormat
 
 task generateMigrationFile {
-	// 引数 `migrationName`を指定できるようにする
 	def migrationName = project.hasProperty('migrationName') ? project.property('migrationName') : 'create_table'
 
 	def dir = project.hasProperty('dir') ? project.property('dir') : 'ddl'

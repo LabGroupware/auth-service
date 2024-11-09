@@ -12,32 +12,65 @@
             <div class="flex flex-col p-6">
                 <h3 class="text-xl font-semibold leading-6 tracking-tighter">Authorize Application</h3>
                 <p class="mt-1.5 text-sm font-medium text-white/50">
-                    The application <strong class="text-gray-800" th:text="${clientId}"></strong> is requesting the following permissions:
+                    The application <strong class="text-green-500" th:text="${clientId}"></strong> is requesting the following permissions:
                 </p>
             </div>
 
-            <ul class="text-left text-gray-600 mt-4 space-y-2">
+            <ul class="text-left text-gray-600 mt-4 space-y-2 mx-5">
                 <li th:each="scope : ${scopes}" th:text="|✔ ${scope.description} (${scope.scope})|"></li>
             </ul>
-            <form th:action="@{/oauth2/authorize}" method="post" class="mt-6 space-y-4 bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
+            <form th:action="@{/oauth2/authorize}" method="post" class="mt-6 space-y-2 bg-white shadow-md rounded-lg p-4 max-w-lg mx-auto">
                 <!-- Hidden Inputs -->
                 <input type="hidden" name="client_id" th:value="${clientId}">
                 <input type="hidden" name="state" th:value="${state}">
 
-                <!-- Scopes -->
-                <div th:each="scope: ${scopes}" class="flex items-center py-2">
-                    <input
-                            class="form-check-input h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3"
-                            type="checkbox"
-                            name="scope"
-                            th:value="${scope.scope}"
-                            th:id="${scope.scope}"
-                            checked>
-                    <label
-                            class="text-gray-700 text-sm font-semibold"
-                            th:for="${scope.scope}"
+                <div class="flex flex-col space-y-2n">
+                    <div class="text-sm text-gray-600 mb-2">
+                        To fully utilize the features of this application, additional permission scopes are required as follows.
+                    </div>
+                    <!-- Scopes -->
+                    <div th:each="scope: ${scopesToApprove}" class="flex items-center py-2">
+                        <div class="flex items-center w-full h-6">
+                            <input
+                                    class="form-check-input h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3 scope-checkbox cursor-pointer"
+                                    type="checkbox"
+                                    name="scope"
+                                    th:value="${scope.scope}"
+                                    th:id="${scope.scope}">
+                            <label
+                                    class="text-gray-700 text-sm font-semibold cursor-pointer"
+                                    th:for="${scope.scope}"
                             th:text="${scope.scope} == 'profile' ? (${scope.description} + '(' + ${principalName} + ')') : ${scope.description}">
-                    </label>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 border-gray-300" th:if="${!#lists.isEmpty(approvedScopes)}">
+
+                <div class="flex flex-col space-y-2" th:if="${!#lists.isEmpty(approvedScopes)}">
+                    <div class="text-sm text-gray-600 mb-2">
+                        The currently granted permission scopes are as follows.
+                    </div>
+                    <!-- Scopes -->
+                    <div th:each="scope: ${approvedScopes}" class="flex items-center py-2">
+                        <div class="flex items-center cursor-pointer w-full h-6">
+                            <input
+                                    class="form-check-input h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3"
+                                    type="checkbox"
+                                    name="scope"
+                                    th:value="${scope.scope}"
+                                    th:id="${scope.scope}"
+                                    checked
+                                    disabled
+                            >
+                            <label
+                                    class="text-gray-700 text-sm font-semibold"
+                                    th:for="${scope.scope}"
+                                    th:text="${scope.scope} == 'profile' ? (${scope.description} + '(' + ${principalName} + ')') : ${scope.description}">
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Divider -->
@@ -53,17 +86,17 @@
                 <!-- Action Buttons -->
                 <div class="flex justify-between mt-6">
                     <button
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                            type="submit"
-                            id="submit-consent">
-                        Authorize
-                    </button>
-                    <button
                             class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                             type="button"
                             id="cancel-consent"
                             onclick="cancelConsent();">
                         Cancel
+                    </button>
+                    <button
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            type="submit"
+                            id="submit-consent">
+                        Authorize
                     </button>
                 </div>
 
@@ -73,25 +106,6 @@
                     <p class="text-gray-800 text-sm font-bold" th:text="${redirectUri}"></p>
                 </div>
             </form>
-
-
-<!--            <form >-->
-<!--                <input type="hidden" name="client_id" th:value="${clientId}" />-->
-<!--                <input type="hidden" name="state" th:value="${state}" />-->
-<!--                <input type="hidden" name="redirect_uri" th:value="${redirectUri}" />-->
-<!--                <input type="hidden" name="response_type" th:value="${responseType}" />-->
-<!--                <input type="hidden" name="scope" th:value="${scope}" />-->
-<!--                <input type="hidden" name="user_oauth_approval" value="true" />-->
-
-<!--                <button type="submit" name="decision" value="approve"-->
-<!--                        class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">-->
-<!--                    Approve-->
-<!--                </button>-->
-<!--                <button type="submit" name="decision" value="deny"-->
-<!--                        class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600">-->
-<!--                    Deny-->
-<!--                </button>-->
-<!--            </form>-->
         </div>
     </div>
 </div>

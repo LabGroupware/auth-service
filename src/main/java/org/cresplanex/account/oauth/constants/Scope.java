@@ -9,15 +9,9 @@ public class Scope {
     public static final String EMAIL = OidcScopes.EMAIL;
     public static final String ADDRESS = OidcScopes.ADDRESS;
     public static final String PHONE = OidcScopes.PHONE;
-    public static final String OFFLINE_ACCESS = "offline_access";
 
+    public static final String READ = "read";
+    public static final String WRITE = "write";
 
-    public enum Type {
-        OPENID,
-        PROFILE,
-        EMAIL,
-        ADDRESS,
-        PHONE,
-        OFFLINE_ACCESS,
-    }
+    public static final String[] ALLOWED_VALUES = { OPENID, PROFILE, EMAIL, ADDRESS, PHONE, READ, WRITE };
 }

@@ -82,3 +82,19 @@ function loadFinished(){
         });
     }
 }
+
+function cancelConsent() {
+    // すべてのscope-checkboxクラスのチェックボックスを取得
+    const checkboxes = document.querySelectorAll('.scope-checkbox');
+
+    // それぞれのチェックボックスに対してチェックを外す
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+
+    // submit-consentボタンを取得
+    const submitButton = document.getElementById('submit-consent');
+
+    // submit-consentボタンを押す
+    submitButton.click();
+}
