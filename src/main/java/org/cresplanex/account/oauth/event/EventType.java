@@ -1,6 +1,6 @@
-package org.cresplanex.account.oauth.constants;
+package org.cresplanex.account.oauth.event;
 
-public class EventTypes {
+public class EventType {
 
     public static final String AUTH_LOGIN = "org.cresplanex.account.event.Auth.Login";
     public static final String USER_CREATED = "org.cresplanex.account.event.User.Created";

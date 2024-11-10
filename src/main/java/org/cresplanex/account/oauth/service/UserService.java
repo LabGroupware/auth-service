@@ -1,7 +1,7 @@
 package org.cresplanex.account.oauth.service;
 
 import lombok.RequiredArgsConstructor;
-import org.cresplanex.account.oauth.constants.EventTypes;
+import org.cresplanex.account.oauth.event.EventType;
 import org.cresplanex.account.oauth.constants.Role;
 import org.cresplanex.account.oauth.entity.AccountEntity;
 import org.cresplanex.account.oauth.event.model.user.UserCreated;
@@ -64,7 +64,7 @@ public class UserService {
                         user.getEmail(),
                         user.getNickname()
                         )),
-                EventTypes.USER_CREATED);
+                EventType.USER_CREATED);
 
         return user;
     }
