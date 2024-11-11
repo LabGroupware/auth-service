@@ -12,7 +12,6 @@ import java.util.stream.IntStream;
 
 public class CustomIdGenerator {
     private static final long MAX_COUNTER = 1 << 16; // 最大値は65536
-    private static final Random RANDOM = new Random();
 
     private boolean fixedFirst = false;
     private final long initialId;
