@@ -1,11 +1,5 @@
 package org.cresplanex.account.oauth.constants;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.util.Map;
-
-@AllArgsConstructor
 public class AuthServerErrorCode {
 
     public static final String SUCCESS = "0000";
@@ -26,4 +20,5 @@ public class AuthServerErrorCode {
     public static final String INVALID_OPAQUE_TOKEN = "1014";
     public static final String INVALID_ACCESS_TOKEN = "1015";
     public static final String USER_NOT_FOUND = "1016";
+    public static final String OAUTH2_CODE_REQUEST_FAILED = "1017";
 }

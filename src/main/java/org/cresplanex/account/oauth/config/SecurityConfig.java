@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cresplanex.account.oauth.auth.CustomAccessDeniedHandler;
 import org.cresplanex.account.oauth.auth.CustomAuthenticationEntryPoint;
+import org.cresplanex.account.oauth.auth.OAuthAuthenticationFailureHandler;
 import org.cresplanex.account.oauth.auth.UsernamePwdAuthenticationProvider;
 import org.cresplanex.account.oauth.auth.filter.JWTTokenValidatorFilter;
 import org.cresplanex.account.oauth.constants.Scope;
@@ -90,6 +91,8 @@ public class SecurityConfig {
 
     private final AccountRepository accountRepository;
 
+    private final OAuthAuthenticationFailureHandler oAuthAuthenticationFailureHandler;
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
@@ -97,8 +100,10 @@ public class SecurityConfig {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(Customizer.withDefaults())    // Enable OpenID Connect 1.0
-                .authorizationEndpoint(authorizationEndpoint ->
-                authorizationEndpoint.consentPage("/oauth2/consent"));
+                .authorizationEndpoint(authorizationEndpoint -> {
+                    authorizationEndpoint.consentPage("/oauth2/consent");
+                    authorizationEndpoint.errorResponseHandler(oAuthAuthenticationFailureHandler);
+                });
         http
                 // Redirect to the login page when not authenticated from the
                 // authorization endpoint

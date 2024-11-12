@@ -35,6 +35,7 @@ public class AuthController {
         TokenResponseDto tokenResponseDto = getTokenResponseDto(jwtToken);
 
         ResponseDto<TokenResponseDto> response = new ResponseDto<>();
+        response.setSuccess(true);
         response.setData(tokenResponseDto);
         response.setCode(AuthServerErrorCode.SUCCESS);
         response.setCaption("Login successful.");

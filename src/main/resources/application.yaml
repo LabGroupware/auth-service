@@ -21,7 +21,7 @@ spring:
     password: ${DB_PASSWORD:postgres}
   flyway:
     enable: true
-    baseline-on-migrate: true #
+    baseline-on-migrate: true
     baseline-version: 0
   data:
     redis:

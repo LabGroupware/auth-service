@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -51,7 +52,6 @@ public class GlobalExceptionHandler {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-
         if (isHtmlRequest(request)) {
             Map<String, Object> variables = new HashMap<>();
             String htmlContent = htmlRenderingService.renderHtml(request, response,"error/400", variables);
