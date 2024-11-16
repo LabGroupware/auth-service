@@ -8,7 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.cresplanex.account.oauth.utils.OriginalAutoGenerate;
+import org.cresplanex.api.state.common.entity.BaseEntity;
+import org.cresplanex.api.state.common.utils.OriginalAutoGenerate;
 
 @Entity
 @Getter
@@ -18,6 +19,16 @@ import org.cresplanex.account.oauth.utils.OriginalAutoGenerate;
 @NoArgsConstructor
 @Table(name = "users")
 public class UserEntity extends BaseEntity {
+
+    @Override
+    public void setId(String id) {
+        this.userId = id;
+    }
+
+    @Override
+    public String getId() {
+        return this.userId;
+    }
 
     @Id
     @OriginalAutoGenerate

@@ -1,10 +1,8 @@
 package org.cresplanex.account.oauth.service;
 
 import lombok.RequiredArgsConstructor;
-import org.cresplanex.account.oauth.event.EventType;
 import org.cresplanex.account.oauth.constants.Role;
 import org.cresplanex.account.oauth.entity.AccountEntity;
-import org.cresplanex.account.oauth.event.model.user.UserCreated;
 import org.cresplanex.account.oauth.event.publisher.UserDomainEventPublisher;
 import org.cresplanex.account.oauth.exception.AccountDuplicateException;
 import org.cresplanex.account.oauth.exception.UserDuplicateException;
@@ -12,6 +10,7 @@ import org.cresplanex.account.oauth.exception.UserNotFoundException;
 import org.cresplanex.account.oauth.repository.AccountRepository;
 import org.cresplanex.account.oauth.repository.UserRepository;
 import org.cresplanex.account.oauth.entity.UserEntity;
+import org.cresplanex.api.state.common.event.model.user.UserCreated;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +63,7 @@ public class UserService {
                         user.getEmail(),
                         user.getNickname()
                         )),
-                EventType.USER_CREATED);
+                UserCreated.TYPE);
 
         return user;
     }

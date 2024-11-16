@@ -2,9 +2,8 @@ package org.cresplanex.account.oauth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.cresplanex.account.oauth.utils.OriginalAutoGenerate;
-
-import java.time.LocalDate;
+import org.cresplanex.api.state.common.entity.BaseEntity;
+import org.cresplanex.api.state.common.utils.OriginalAutoGenerate;
 
 @Entity
 @Getter
@@ -14,6 +13,16 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Table(name = "accounts")
 public class AccountEntity extends BaseEntity {
+
+    @Override
+    public void setId(String id) {
+        this.accountId = id;
+    }
+
+    @Override
+    public String getId() {
+        return this.accountId;
+    }
 
     @Id
     @OriginalAutoGenerate
