@@ -35,10 +35,6 @@ public class UserEntity extends BaseEntity {
     @Column(name = "user_id", length = 100, nullable = false, unique = true)
     private String userId;
 
-    @Version
-    @Column(name = "version", nullable = false)
-    private Integer version;
-
     @Column(name = "name", length = 200, nullable = false)
     private String name;
 

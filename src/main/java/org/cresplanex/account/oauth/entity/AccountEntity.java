@@ -29,10 +29,6 @@ public class AccountEntity extends BaseEntity {
     @Column(name = "account_id", length = 100, nullable = false, unique = true)
     private String accountId;
 
-    @Version
-    @Column(name = "version", nullable = false)
-    private Integer version;
-
     @Column(name = "login_id", length = 200, nullable = false, unique = true)
     private String loginId;
 
