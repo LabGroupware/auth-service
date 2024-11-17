@@ -18,7 +18,7 @@ import org.cresplanex.api.state.common.utils.OriginalAutoGenerate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class UserEntity extends BaseEntity {
+public class UserEntity extends BaseEntity<UserEntity> {
 
     @Override
     public void setId(String id) {

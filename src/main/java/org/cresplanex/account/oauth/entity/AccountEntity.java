@@ -12,7 +12,7 @@ import org.cresplanex.api.state.common.utils.OriginalAutoGenerate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "accounts")
-public class AccountEntity extends BaseEntity {
+public class AccountEntity extends BaseEntity<AccountEntity> {
 
     @Override
     public void setId(String id) {
