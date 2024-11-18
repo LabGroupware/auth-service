@@ -18,9 +18,9 @@ CREATE TABLE users (
     birthdate DATE,
     zoneinfo VARCHAR(50),
     locale VARCHAR(10),
-    created_at DATE NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     created_by VARCHAR(50) NOT NULL,
-    updated_at DATE DEFAULT NULL,
+    updated_at TIMESTAMP DEFAULT NULL,
     updated_by VARCHAR(50) DEFAULT NULL,
 
     -- 外部キー制約: accounts テーブルの user_id に紐づけ、CASCADEオプションを設定
