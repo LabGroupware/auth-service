@@ -127,6 +127,7 @@ public class SecurityConfig {
             return true;
         } else {
             for (String range : cidrRanges) {
+                log.debug("Checking IP address {} in CIDR range {}", clientIp, range);
                 IpAddressMatcher matcher = new IpAddressMatcher(range);
                 granted = matcher.matches(clientIp);
                 if (granted) {
@@ -146,15 +147,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.POST, "/register", "/login").not().authenticated()
                         .requestMatchers("/register", "/login", "/css/**", "/js/**",  "/forgot-password", "/error/**").permitAll()
-                        .requestMatchers("/actuator/**").access(
-                                new AuthorizationManager<RequestAuthorizationContext>() {
-                                    @Override
-                                    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
-                                        String ClientIp = object.getRequest().getRemoteAddr();
-                                        boolean granted = isIpInCidrRange(ClientIp);
-                                        return new AuthorizationDecision(granted);
-                                    }
-                                })
+                        .requestMatchers("/actuator/**").permitAll()
+//                        .access(
+//                                new AuthorizationManager<RequestAuthorizationContext>() {
+//                                    @Override
+//                                    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
+//                                        String ClientIp = object.getRequest().getRemoteAddr();
+//                                        boolean granted = isIpInCidrRange(ClientIp);
+//                                        return new AuthorizationDecision(granted);
+//                                    }
+//                                })
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->
