@@ -56,8 +56,27 @@ services:
       CONFIG_STORAGE_TOPIC: ms_connect_configs
       OFFSET_STORAGE_TOPIC: ms_connect_offsets
       STATUS_STORAGE_TOPIC: ms_connect_statuses
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 10090:9090
+    volumes:
+      - './prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+      - 'prometheus-data:/prometheus'
+  exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - 10100:9100
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 13000:3000
 volumes:
   kafka_data:
+  prometheus-data:
 networks:
   connect_network:
     external: true
